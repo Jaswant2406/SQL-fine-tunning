@@ -52,7 +52,7 @@ Deploy the dashboard on [Streamlit Community Cloud](https://share.streamlit.io/)
 4. In **App settings → Secrets**, copy the values from `.streamlit/secrets.toml.example` and replace `hf_your_access_token` with your Hugging Face access token.
 5. Deploy the app.
 
-The token is kept in Streamlit Secrets and is not committed to GitHub. The cloud version uses `HuggingFaceTB/SmolLM2-1.7B-Instruct` by default; set `TEXT_TO_SQL_MODEL` in Secrets to use a different compatible hosted text-generation model.
+The token is kept in Streamlit Secrets and is not committed to GitHub. Create a **fine-grained** Hugging Face token with the **Make calls to Inference Providers** permission; a Read-only token cannot run cloud inference. The cloud version uses `deepseek-ai/DeepSeek-V3-0324` by default; set `TEXT_TO_SQL_MODEL` in Secrets to use a different compatible hosted chat model.
 
 ### 3. Ask a question
 

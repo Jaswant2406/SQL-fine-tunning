@@ -13,24 +13,27 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 ADAPTER_DIR = "adapter"
 MAX_NEW_TOKENS = 128
-HOSTED_MODEL_NAME = "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+# This model is available through Hugging Face Inference Providers. The cloud
+# app uses the provider router rather than loading model weights itself.
+HOSTED_MODEL_NAME = "deepseek-ai/DeepSeek-V3-0324"
 
 
 class HostedInferenceModel:
     """Text-generation client used by the deployed Streamlit application."""
 
     def __init__(self, token: str, model_name: str):
-        self.client = InferenceClient(model=model_name, token=token)
+        self.client = InferenceClient(provider="auto", token=token)
         self.model_name = model_name
 
     def generate(self, prompt: str, max_new_tokens: int) -> str:
         try:
-            return self.client.text_generation(
-                prompt,
-                max_new_tokens=max_new_tokens,
-                do_sample=False,
-                return_full_text=False,
+            completion = self.client.chat_completion(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=max_new_tokens,
+                temperature=0,
             )
+            return completion.choices[0].message.content or ""
         except Exception as exc:
             raise RuntimeError(
                 "Hosted inference failed. Check HF_TOKEN and TEXT_TO_SQL_MODEL in Streamlit Secrets."
