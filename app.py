@@ -1,6 +1,7 @@
 import json
 import os
 import sqlite3
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -12,7 +13,9 @@ from infer import generate_sql, get_hosted_inference_model, load_finetuned_model
 from sample_db import create_database
 
 RESULTS_PATH = Path("results.json")
-SAMPLE_DB_PATH = Path("sample.db")
+# Streamlit Community Cloud mounts the repository as read-only. Keep the
+# regenerated demo database in the runtime's writable temporary directory.
+SAMPLE_DB_PATH = Path(tempfile.gettempdir()) / "tinyllama_sql_sample.db"
 SAMPLE_SCHEMA = """CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT NOT NULL, salary INTEGER NOT NULL, department TEXT NOT NULL);
 CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, price REAL NOT NULL, category TEXT NOT NULL);
 CREATE TABLE orders (id INTEGER PRIMARY KEY, product_id INTEGER NOT NULL, quantity INTEGER NOT NULL, date TEXT NOT NULL, FOREIGN KEY (product_id) REFERENCES products(id));"""
@@ -64,7 +67,7 @@ def infer_sqlite_type(dtype):
 
 def get_connection(source, uploaded):
     if source == "Sample Database":
-        create_database(); connection = sqlite3.connect(SAMPLE_DB_PATH); connection.row_factory = sqlite3.Row
+        create_database(SAMPLE_DB_PATH); connection = sqlite3.connect(SAMPLE_DB_PATH); connection.row_factory = sqlite3.Row
         return connection, SAMPLE_SCHEMA, None
     dataframe = pd.read_csv(uploaded); dataframe.columns = [str(c).strip().replace(" ", "_") for c in dataframe.columns]
     connection = sqlite3.connect(":memory:"); connection.row_factory = sqlite3.Row; dataframe.to_sql("uploaded_data", connection, if_exists="replace", index=False)

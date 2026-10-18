@@ -6,14 +6,15 @@ from typing import List, Dict, Any
 DB_PATH = Path("sample.db")
 
 
-def get_connection() -> sqlite3.Connection:
-    connection = sqlite3.connect(DB_PATH)
+def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
+    connection = sqlite3.connect(db_path)
     connection.row_factory = sqlite3.Row
     return connection
 
 
-def create_database() -> None:
-    connection = get_connection()
+def create_database(db_path: Path = DB_PATH) -> None:
+    """Create the sample data in the requested SQLite file."""
+    connection = get_connection(db_path)
     cursor = connection.cursor()
 
     cursor.executescript(
