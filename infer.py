@@ -1,9 +1,11 @@
 import argparse
 import json
+import os
 import re
 import sqlite3
 
 import torch
+from huggingface_hub import InferenceClient
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
@@ -11,6 +13,37 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 ADAPTER_DIR = "adapter"
 MAX_NEW_TOKENS = 128
+HOSTED_MODEL_NAME = "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+
+
+class HostedInferenceModel:
+    """Text-generation client used by the deployed Streamlit application."""
+
+    def __init__(self, token: str, model_name: str):
+        self.client = InferenceClient(model=model_name, token=token)
+        self.model_name = model_name
+
+    def generate(self, prompt: str, max_new_tokens: int) -> str:
+        try:
+            return self.client.text_generation(
+                prompt,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                return_full_text=False,
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                "Hosted inference failed. Check HF_TOKEN and TEXT_TO_SQL_MODEL in Streamlit Secrets."
+            ) from exc
+
+
+def get_hosted_inference_model() -> HostedInferenceModel | None:
+    """Return a hosted client when deployment credentials are available."""
+    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    if not token:
+        return None
+    model_name = os.getenv("TEXT_TO_SQL_MODEL", HOSTED_MODEL_NAME)
+    return HostedInferenceModel(token, model_name)
 
 
 def build_quantization_config() -> BitsAndBytesConfig:
@@ -65,6 +98,8 @@ def get_model_device(model) -> torch.device:
 
 
 def _decode_generation(model, tokenizer, prompt: str, max_new_tokens: int = MAX_NEW_TOKENS) -> str:
+    if isinstance(model, HostedInferenceModel):
+        return model.generate(prompt, max_new_tokens)
     inputs = tokenizer(prompt, return_tensors="pt").to(get_model_device(model))
 
     with torch.inference_mode():

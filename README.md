@@ -42,6 +42,18 @@ streamlit run app.py
 
 Open the address shown in the terminal, usually `http://localhost:8501`.
 
+## Free cloud deployment
+
+Deploy the dashboard on [Streamlit Community Cloud](https://share.streamlit.io/). The deployed app uses hosted inference because the free cloud environment does not provide a CUDA GPU for local 4-bit model loading.
+
+1. Push this repository to GitHub.
+2. Sign in to Streamlit Community Cloud with GitHub and select this repository.
+3. Set the entry point to `app.py`.
+4. In **App settings → Secrets**, copy the values from `.streamlit/secrets.toml.example` and replace `hf_your_access_token` with your Hugging Face access token.
+5. Deploy the app.
+
+The token is kept in Streamlit Secrets and is not committed to GitHub. The cloud version uses `HuggingFaceTB/SmolLM2-1.7B-Instruct` by default; set `TEXT_TO_SQL_MODEL` in Secrets to use a different compatible hosted text-generation model.
+
 ### 3. Ask a question
 
 With **Sample Database** selected, try:

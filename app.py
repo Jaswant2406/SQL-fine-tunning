@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 from pathlib import Path
 
@@ -7,7 +8,7 @@ import plotly.express as px
 import streamlit as st
 import streamlit.components.v1 as components
 
-from infer import generate_sql, load_finetuned_model, load_tokenizer, self_heal_sql, suggest_chart_config
+from infer import generate_sql, get_hosted_inference_model, load_finetuned_model, load_tokenizer, self_heal_sql, suggest_chart_config
 from sample_db import create_database
 
 RESULTS_PATH = Path("results.json")
@@ -44,7 +45,11 @@ def install_keyboard_shortcuts():
 
 
 @st.cache_resource
-def get_query_model(): return load_tokenizer(), load_finetuned_model()
+def get_query_model():
+    hosted_model = get_hosted_inference_model()
+    if hosted_model is not None:
+        return None, hosted_model
+    return load_tokenizer(), load_finetuned_model()
 
 
 def read_results():
@@ -115,13 +120,22 @@ def main():
         if source == "Upload CSV" and upload is None:
             st.info("[ awaiting csv upload ]"); return
         connection, context, preview = get_connection(source, upload)
+        hosted_mode = bool(os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN"))
         st.markdown(f'<div class="terminal-status">[ source: {"sample.sqlite" if preview is None else "uploaded_data"} ]</div>', unsafe_allow_html=True)
+        if hosted_mode:
+            st.markdown('<div class="terminal-status">[ inference: hosted ]</div>', unsafe_allow_html=True)
         if preview is not None: st.dataframe(preview.head(10), use_container_width=True, hide_index=True)
         with st.form("query_form"):
             question = st.text_area("Ask a question or request a chart", value="Show me average salary by department as a bar chart", height=96)
             submitted = st.form_submit_button("Generate SQL & Run [ CTRL+ENTER ]", type="primary", use_container_width=True)
         if submitted:
-            with st.spinner("[ generating_sql... ]"): original, error, corrected, corrected_error, dataframe = run_query(question, context, connection, model, tokenizer)
+            try:
+                with st.spinner("[ generating_sql... ]"):
+                    original, error, corrected, corrected_error, dataframe = run_query(question, context, connection, model, tokenizer)
+            except RuntimeError as exc:
+                st.markdown(f'<div class="error-line">[ inference_error ] {exc}</div>', unsafe_allow_html=True)
+                connection.close()
+                return
             sql_panel("generated_sql", original)
             if error:
                 st.markdown(f'<div class="error-line">[ execution_error ] {error}</div>', unsafe_allow_html=True); sql_panel("ai_corrected_sql", corrected)
