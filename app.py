@@ -47,9 +47,18 @@ def install_keyboard_shortcuts():
     </script>""", height=0)
 
 
+def get_secret(name: str) -> str | None:
+    """Read Cloud Secrets first; fall back to an environment variable locally."""
+    try:
+        value = st.secrets.get(name)
+    except (FileNotFoundError, AttributeError):
+        value = None
+    return value or os.getenv(name)
+
+
 @st.cache_resource
-def get_query_model():
-    hosted_model = get_hosted_inference_model()
+def get_query_model(hosted_token: str | None, hosted_model_name: str | None):
+    hosted_model = get_hosted_inference_model(hosted_token, hosted_model_name)
     if hosted_model is not None:
         return None, hosted_model
     return load_tokenizer(), load_finetuned_model()
@@ -110,7 +119,9 @@ def main():
     st.set_page_config(page_title="TinyLlama SQL Dashboard", layout="wide")
     inject_terminal_theme(); install_keyboard_shortcuts()
     st.markdown('<div class="topline"><h1>TinyLlama SQL Dashboard</h1><span class="hint">[ / focus input ] &nbsp; [ ctrl+enter run ]</span></div>', unsafe_allow_html=True)
-    tokenizer, model = get_query_model(); results = read_results()
+    hosted_token = get_secret("HF_TOKEN") or get_secret("HUGGINGFACEHUB_API_TOKEN")
+    hosted_model_name = get_secret("TEXT_TO_SQL_MODEL")
+    tokenizer, model = get_query_model(hosted_token, hosted_model_name); results = read_results()
     query_tab, eval_tab = st.tabs(["Query your data", "Model evaluation"])
     with query_tab:
         with st.sidebar:
@@ -123,7 +134,7 @@ def main():
         if source == "Upload CSV" and upload is None:
             st.info("[ awaiting csv upload ]"); return
         connection, context, preview = get_connection(source, upload)
-        hosted_mode = bool(os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN"))
+        hosted_mode = hosted_token is not None
         st.markdown(f'<div class="terminal-status">[ source: {"sample.sqlite" if preview is None else "uploaded_data"} ]</div>', unsafe_allow_html=True)
         if hosted_mode:
             st.markdown('<div class="terminal-status">[ inference: hosted ]</div>', unsafe_allow_html=True)

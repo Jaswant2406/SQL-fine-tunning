@@ -37,12 +37,14 @@ class HostedInferenceModel:
             ) from exc
 
 
-def get_hosted_inference_model() -> HostedInferenceModel | None:
+def get_hosted_inference_model(
+    token: str | None = None, model_name: str | None = None
+) -> HostedInferenceModel | None:
     """Return a hosted client when deployment credentials are available."""
-    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    token = token or os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
     if not token:
         return None
-    model_name = os.getenv("TEXT_TO_SQL_MODEL", HOSTED_MODEL_NAME)
+    model_name = model_name or os.getenv("TEXT_TO_SQL_MODEL", HOSTED_MODEL_NAME)
     return HostedInferenceModel(token, model_name)
 
 
@@ -98,7 +100,7 @@ def get_model_device(model) -> torch.device:
 
 
 def _decode_generation(model, tokenizer, prompt: str, max_new_tokens: int = MAX_NEW_TOKENS) -> str:
-    if isinstance(model, HostedInferenceModel):
+    if isinstance(model, HostedInferenceModel) or tokenizer is None:
         return model.generate(prompt, max_new_tokens)
     inputs = tokenizer(prompt, return_tensors="pt").to(get_model_device(model))
 
