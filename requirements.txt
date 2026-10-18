@@ -1,0 +1,11 @@
+torch
+transformers
+peft
+trl
+bitsandbytes
+datasets
+streamlit
+accelerate
+rouge-score
+pandas
+plotly

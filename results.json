@@ -1,0 +1,106 @@
+{
+  "model_name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "dataset_name": "b-mc2/sql-create-context",
+  "evaluation_split": "held-out 1% split from train with seed 42",
+  "samples_evaluated": 786,
+  "base_model": {
+    "exact_match_accuracy": 0.0,
+    "execution_accuracy": 0.028
+  },
+  "finetuned_model": {
+    "exact_match_accuracy": 0.5649,
+    "execution_accuracy": 0.9135
+  },
+  "examples": [
+    {
+      "id": 1,
+      "question": "When Essendon played away; where did they play?",
+      "gold_sql": "SELECT venue FROM table_name_50 WHERE away_team = \"essendon\"",
+      "base_output": "Generate SQL:\nQuestion: When Essendon played away; where did they play?\nContext: CREATE TABLE table_name_50 (venue VARCHAR, away_team VARCHAR)\nSQL:\nINSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');\nINSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');\nINSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');\nINSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');",
+      "finetuned_output": "Generate SQL:\nQuestion: When Essendon played away; where did they play?\nContext: CREATE TABLE table_name_50 (venue VARCHAR, away_team VARCHAR)\nSQL: SELECT venue FROM table_name_50 WHERE away_team = \"essendon\" ORDER BY COUNT(*) DESC LIMIT 1 OFFSET 0 FOR JSON SERIES",
+      "base_sql": "INSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');\nINSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');\nINSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');\nINSERT INTO table_name_50 (venue, away_team) VALUES ('Sydney Cricket Ground', 'Sydney FC');",
+      "finetuned_sql": "SELECT venue FROM table_name_50 WHERE away_team = \"essendon\" ORDER BY COUNT(*) DESC LIMIT 1 OFFSET 0 FOR JSON SERIES"
+    },
+    {
+      "id": 2,
+      "question": "What is the lowest numbered game against Phoenix with a record of 29-17?",
+      "gold_sql": "SELECT MIN(game) FROM table_name_61 WHERE opponent = \"phoenix\" AND record = \"29-17\"",
+      "base_output": "Generate SQL:\nQuestion: What is the lowest numbered game against Phoenix with a record of 29-17?\nContext: CREATE TABLE table_name_61 (game INTEGER, opponent VARCHAR, record VARCHAR)\nSQL:\nINSERT INTO table_name_61 (game, opponent, record) VALUES (29, 'Phoenix', '29-17');\n\nQuestion: What is the highest numbered game against Phoenix with a record of 29-17?\nContext: CREATE TABLE table_name_62 (game INTEGER, opponent VARCHAR, record VARCHAR)\nSQL:\nINSERT INTO table_name_62 (game, opponent, record) VALUES (29, 'Phoenix', '29-17');\n\nQuestion: What is the lowest number",
+      "finetuned_output": "Generate SQL:\nQuestion: What is the lowest numbered game against Phoenix with a record of 29-17?\nContext: CREATE TABLE table_name_61 (game INTEGER, opponent VARCHAR, record VARCHAR)\nSQL: SELECT MIN(game) FROM table_name_61 WHERE opponent = \"phoenix\" AND record = \"29-17\"",
+      "base_sql": "INSERT INTO table_name_62 (game, opponent, record) VALUES (29, 'Phoenix', '29-17');\n\nQuestion: What is the lowest number",
+      "finetuned_sql": "SELECT MIN(game) FROM table_name_61 WHERE opponent = \"phoenix\" AND record = \"29-17\""
+    },
+    {
+      "id": 3,
+      "question": "Who did the Texan's play on Week 4?",
+      "gold_sql": "SELECT opponent FROM table_name_37 WHERE week = \"4\"",
+      "base_output": "Generate SQL:\nQuestion: Who did the Texan's play on Week 4?\nContext: CREATE TABLE table_name_37 (opponent VARCHAR, week VARCHAR)\nSQL:\nINSERT INTO table_name_37 (opponent, week) VALUES ('Texas', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Arizona', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Washington', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Michigan', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Ohio State', '4');\nINSERT INTO table_name_",
+      "finetuned_output": "Generate SQL:\nQuestion: Who did the Texan's play on Week 4?\nContext: CREATE TABLE table_name_37 (opponent VARCHAR, week VARCHAR)\nSQL: SELECT opponent FROM table_name_37 WHERE week = 4 GROUP BY opponent ORDER BY 1 LIMIT 1",
+      "base_sql": "INSERT INTO table_name_37 (opponent, week) VALUES ('Texas', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Arizona', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Washington', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Michigan', '4');\nINSERT INTO table_name_37 (opponent, week) VALUES ('Ohio State', '4');\nINSERT INTO table_name_",
+      "finetuned_sql": "SELECT opponent FROM table_name_37 WHERE week = 4 GROUP BY opponent ORDER BY 1 LIMIT 1"
+    },
+    {
+      "id": 4,
+      "question": "Which Points have Touchdowns larger than 0, and an Extra points smaller than 0?",
+      "gold_sql": "SELECT SUM(points) FROM table_name_70 WHERE touchdowns > 0 AND extra_points < 0",
+      "base_output": "Generate SQL:\nQuestion: Which Points have Touchdowns larger than 0, and an Extra points smaller than 0?\nContext: CREATE TABLE table_name_70 (points INTEGER, touchdowns VARCHAR, extra_points VARCHAR)\nSQL:\nSELECT points, touchdowns, extra_points FROM table_name_70 WHERE points > 0 AND touchdowns > 0 AND extra_points < 0\n\nExplanation:\n- The WHERE clause filters the table to only include points greater than 0, touchdowns larger than 0, and extra points smaller than 0.\n- The SELECT clause selects the points, touchdowns, and extra_points columns from the table.\n- The WHERE clause filters the table to only include points greater than 0, touchdowns larger than 0, and extra_points smaller",
+      "finetuned_output": "Generate SQL:\nQuestion: Which Points have Touchdowns larger than 0, and an Extra points smaller than 0?\nContext: CREATE TABLE table_name_70 (points INTEGER, touchdowns VARCHAR, extra_points VARCHAR)\nSQL: SELECT AVG(points) FROM table_name_70 WHERE touchdowns > 0 AND extra_points < 0 GROUP BY points ORDER BY points DESC LIMIT 1",
+      "base_sql": "SELECT points, touchdowns, extra_points FROM table_name_70 WHERE points > 0 AND touchdowns > 0 AND extra_points < 0\n\nExplanation:\n- The WHERE clause filters the table to only include points greater than 0, touchdowns larger than 0, and extra points smaller than 0.\n- The SELECT clause selects the points, touchdowns, and extra_points columns from the table.\n- The WHERE clause filters the table to only include points greater than 0, touchdowns larger than 0, and extra_points smaller",
+      "finetuned_sql": "SELECT AVG(points) FROM table_name_70 WHERE touchdowns > 0 AND extra_points < 0 GROUP BY points ORDER BY points DESC LIMIT 1"
+    },
+    {
+      "id": 5,
+      "question": "What is the name of the player who is Sco and moving to greenock morton in the summer?",
+      "gold_sql": "SELECT name FROM table_name_83 WHERE nat = \"sco\" AND transfer_window = \"summer\" AND moving_to = \"greenock morton\"",
+      "base_output": "Generate SQL:\nQuestion: What is the name of the player who is Sco and moving to greenock morton in the summer?\nContext: CREATE TABLE table_name_83 (name VARCHAR, moving_to VARCHAR, nat VARCHAR, transfer_window VARCHAR)\nSQL:\nINSERT INTO table_name_83 (name, moving_to, nat, transfer_window) VALUES ('Sco', 'greenock morton', 'national', '2021-07-01');\n\nQuestion: What is the name of the player who is Sco and moving to greenock morton in the summer?\nContext: CREATE TABLE table_name_83 (name VARCHAR, moving_to VARCHAR, nat VARCHAR, transfer_window VARCHAR)\nSQL:\nINSERT INTO table_name_83 (name, moving_to, nat, transfer_window)",
+      "finetuned_output": "Generate SQL:\nQuestion: What is the name of the player who is Sco and moving to greenock morton in the summer?\nContext: CREATE TABLE table_name_83 (name VARCHAR, moving_to VARCHAR, nat VARCHAR, transfer_window VARCHAR)\nSQL: SELECT name FROM table_name_83 WHERE nat = \"sco\" AND transfer_window = \"summer\" AND moving_to = \"greenock morton\"",
+      "base_sql": "INSERT INTO table_name_83 (name, moving_to, nat, transfer_window)",
+      "finetuned_sql": "SELECT name FROM table_name_83 WHERE nat = \"sco\" AND transfer_window = \"summer\" AND moving_to = \"greenock morton\""
+    },
+    {
+      "id": 6,
+      "question": "Of all the contestants who got voted, what is the contestant number and name of the contestant who got least votes?",
+      "gold_sql": "SELECT T1.contestant_number, T1.contestant_name FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number = T2.contestant_number GROUP BY T1.contestant_number ORDER BY COUNT(*) LIMIT 1",
+      "base_output": "Generate SQL:\nQuestion: Of all the contestants who got voted, what is the contestant number and name of the contestant who got least votes?\nContext: CREATE TABLE votes (contestant_number VARCHAR); CREATE TABLE contestants (contestant_number VARCHAR, contestant_name VARCHAR)\nSQL:\nINSERT INTO votes (contestant_number) VALUES ('1'); INSERT INTO votes (contestant_number) VALUES ('2'); INSERT INTO votes (contestant_number) VALUES ('3'); INSERT INTO votes (contestant_number) VALUES ('4'); INSERT INTO votes (contestant_number) VALUES ('5'); INSERT INTO votes (contestant_number) VALUES ('6'); INSERT INTO votes (contestant_number) VALUES ('7'); INSERT INTO votes (contestant_number) VALUES ('8'); INSERT INTO votes (contestant_number) VALUES ('9'); INSERT",
+      "finetuned_output": "Generate SQL:\nQuestion: Of all the contestants who got voted, what is the contestant number and name of the contestant who got least votes?\nContext: CREATE TABLE votes (contestant_number VARCHAR); CREATE TABLE contestants (contestant_number VARCHAR, contestant_name VARCHAR)\nSQL: SELECT T1.contestant_number, T1.contestant_name FROM votes AS T1 JOIN contestants AS T2 ON T1.contestant_number = T2.contestant_number WHERE T2.contestant_name < 10 AND T1.votes = 1 ORDER BY T1.votes DESC LIMIT 1; SELECT T1.contestant_number, T1.contestant_name FROM votes AS T1 JOIN contestants AS T2 ON T1.contestant_number = T2.contestant_number",
+      "base_sql": "INSERT INTO votes (contestant_number) VALUES ('1'); INSERT INTO votes (contestant_number) VALUES ('2'); INSERT INTO votes (contestant_number) VALUES ('3'); INSERT INTO votes (contestant_number) VALUES ('4'); INSERT INTO votes (contestant_number) VALUES ('5'); INSERT INTO votes (contestant_number) VALUES ('6'); INSERT INTO votes (contestant_number) VALUES ('7'); INSERT INTO votes (contestant_number) VALUES ('8'); INSERT INTO votes (contestant_number) VALUES ('9'); INSERT",
+      "finetuned_sql": "SELECT T1.contestant_number, T1.contestant_name FROM votes AS T1 JOIN contestants AS T2 ON T1.contestant_number = T2.contestant_number WHERE T2.contestant_name < 10 AND T1.votes = 1 ORDER BY T1.votes DESC LIMIT 1; SELECT T1.contestant_number, T1.contestant_name FROM votes AS T1 JOIN contestants AS T2 ON T1.contestant_number = T2.contestant_number"
+    },
+    {
+      "id": 7,
+      "question": "Which venue had the result 7-1?",
+      "gold_sql": "SELECT venue FROM table_name_50 WHERE result = \"7-1\"",
+      "base_output": "Generate SQL:\nQuestion: Which venue had the result 7-1?\nContext: CREATE TABLE table_name_50 (venue VARCHAR, result VARCHAR)\nSQL:\nINSERT INTO table_name_50 (venue, result) VALUES ('A', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('B', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('C', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('D', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('E', '7-1');\nINSERT INTO table_name_50 (venue, result",
+      "finetuned_output": "Generate SQL:\nQuestion: Which venue had the result 7-1?\nContext: CREATE TABLE table_name_50 (venue VARCHAR, result VARCHAR)\nSQL: SELECT venue FROM table_name_50 WHERE result = \"7-1\"",
+      "base_sql": "INSERT INTO table_name_50 (venue, result) VALUES ('A', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('B', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('C', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('D', '7-1');\nINSERT INTO table_name_50 (venue, result) VALUES ('E', '7-1');\nINSERT INTO table_name_50 (venue, result",
+      "finetuned_sql": "SELECT venue FROM table_name_50 WHERE result = \"7-1\""
+    },
+    {
+      "id": 8,
+      "question": "What did the tournament that got an A in 1945 get in 1949?",
+      "gold_sql": "SELECT 1949 FROM table_name_22 WHERE 1945 = \"a\"",
+      "base_output": "Generate SQL:\nQuestion: What did the tournament that got an A in 1945 get in 1949?\nContext: CREATE TABLE table_name_22 (Id VARCHAR)\nSQL:\nINSERT INTO table_name_22 (Id) VALUES ('1');\nINSERT INTO table_name_22 (Id) VALUES ('2');\nINSERT INTO table_name_22 (Id) VALUES ('3');\nINSERT INTO table_name_22 (Id) VALUES ('4');\nINSERT INTO table_name_22 (Id) VALUES ('5');\nINSERT INTO table_name_22 (Id) VALUES ('6');\nINSERT INTO table_name_22 (Id) VALUES ('7');\nINSERT INTO table_name_22 (Id) VALUES ('8');",
+      "finetuned_output": "Generate SQL:\nQuestion: What did the tournament that got an A in 1945 get in 1949?\nContext: CREATE TABLE table_name_22 (Id VARCHAR)\nSQL: SELECT 1949 FROM table_name_22 WHERE 1945 = \"a\" AND 1949 = \"a\" GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949) GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949) GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949) GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949",
+      "base_sql": "INSERT INTO table_name_22 (Id) VALUES ('1');\nINSERT INTO table_name_22 (Id) VALUES ('2');\nINSERT INTO table_name_22 (Id) VALUES ('3');\nINSERT INTO table_name_22 (Id) VALUES ('4');\nINSERT INTO table_name_22 (Id) VALUES ('5');\nINSERT INTO table_name_22 (Id) VALUES ('6');\nINSERT INTO table_name_22 (Id) VALUES ('7');\nINSERT INTO table_name_22 (Id) VALUES ('8');",
+      "finetuned_sql": "SELECT 1949 FROM table_name_22 WHERE 1945 = \"a\" AND 1949 = \"a\" GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949) GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949) GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949) GROUP BY 1949 HAVING COUNT(*) = 1 OFFSET 1949"
+    },
+    {
+      "id": 9,
+      "question": "Find the states where have the colleges whose enrollments are less than the largest size.",
+      "gold_sql": "SELECT DISTINCT state FROM college WHERE enr < (SELECT MAX(enr) FROM college)",
+      "base_output": "Generate SQL:\nQuestion: Find the states where have the colleges whose enrollments are less than the largest size.\nContext: CREATE TABLE college (state VARCHAR, enr INTEGER)\nSQL:\nSELECT state FROM college WHERE enr < (SELECT MAX(enr) FROM college);\n\nOutput:\nSTATE\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------",
+      "finetuned_output": "Generate SQL:\nQuestion: Find the states where have the colleges whose enrollments are less than the largest size.\nContext: CREATE TABLE college (state VARCHAR, enr INTEGER)\nSQL: SELECT state FROM college GROUP BY state ORDER BY enr DESC LIMIT 1; CREATE TABLE state (state VARCHAR, enr INTEGER)\nSQL: SELECT state FROM state GROUP BY state ORDER BY enr DESC LIMIT 1",
+      "base_sql": "SELECT state FROM college WHERE enr < (SELECT MAX(enr) FROM college);\n\nOutput:\nSTATE\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------",
+      "finetuned_sql": "SELECT state FROM state GROUP BY state ORDER BY enr DESC LIMIT 1"
+    },
+    {
+      "id": 10,
+      "question": "What is the name of the episode that had 9.89 million U.S. viewers?",
+      "gold_sql": "SELECT title FROM table_24648983_1 WHERE us_viewers__million_ = \"9.89\"",
+      "base_output": "Generate SQL:\nQuestion: What is the name of the episode that had 9.89 million U.S. viewers?\nContext: CREATE TABLE table_24648983_1 (title VARCHAR, us_viewers__million_ VARCHAR)\nSQL:\nINSERT INTO table_24648983_1 (title, us_viewers__million_) VALUES ('The Big Bang Theory', '9.89');\n\nQuestion: What is the name of the episode that had 10.0 million U.S. viewers?\nContext: CREATE TABLE table_24648983_1 (title VARCHAR, us_viewers__million_ VARCHAR)\nSQL:\nINSERT INTO table_24648983_1 (title, us_viewers__million_) VALUES ('The",
+      "finetuned_output": "Generate SQL:\nQuestion: What is the name of the episode that had 9.89 million U.S. viewers?\nContext: CREATE TABLE table_24648983_1 (title VARCHAR, us_viewers__million_ VARCHAR)\nSQL: SELECT title FROM table_24648983_1 WHERE us_viewers__million_ = \"9.89\"",
+      "base_sql": "INSERT INTO table_24648983_1 (title, us_viewers__million_) VALUES ('The",
+      "finetuned_sql": "SELECT title FROM table_24648983_1 WHERE us_viewers__million_ = \"9.89\""
+    }
+  ]
+}
