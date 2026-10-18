@@ -6,6 +6,7 @@ import sqlite3
 
 import torch
 from huggingface_hub import InferenceClient
+from huggingface_hub.errors import HfHubHTTPError
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
@@ -34,10 +35,23 @@ class HostedInferenceModel:
                 temperature=0,
             )
             return completion.choices[0].message.content or ""
-        except Exception as exc:
+        except HfHubHTTPError as exc:
+            status = exc.response.status_code if exc.response is not None else None
+            if status in {401, 403}:
+                message = "Hugging Face rejected the token. Create a fine-grained token with the Inference permission."
+            elif status in {402, 429}:
+                message = "Hugging Face inference credits are unavailable or rate-limited. Try again later or add credits."
+            elif status == 404:
+                message = "The configured hosted model is not available from an inference provider."
+            else:
+                message = f"Hugging Face provider request failed (HTTP {status or 'unknown'})."
+            raise RuntimeError(message) from exc
+        except ValueError as exc:
             raise RuntimeError(
-                "Hosted inference failed. Check HF_TOKEN and TEXT_TO_SQL_MODEL in Streamlit Secrets."
+                "The configured hosted model is not available from an inference provider."
             ) from exc
+        except Exception as exc:
+            raise RuntimeError("Hosted inference could not be reached. Try again in a moment.") from exc
 
 
 def get_hosted_inference_model(
