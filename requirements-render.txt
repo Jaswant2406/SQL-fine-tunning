@@ -4,4 +4,4 @@ huggingface_hub
 pandas
 plotly
 torch
-perft
+peft
