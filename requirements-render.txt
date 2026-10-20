@@ -3,3 +3,4 @@ transformers
 huggingface_hub
 pandas
 plotly
+torch
